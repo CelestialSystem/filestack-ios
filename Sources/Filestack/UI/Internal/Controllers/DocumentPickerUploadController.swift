@@ -18,8 +18,14 @@ class DocumentPickerUploadController: URLPickerUploadController {
          config: Config,
          completionBlock: (([URL]) -> Void)? = nil) {
 
-        let allowedContentTypes = config.documentPickerAllowedUTIs.compactMap { UTType($0) }
-        self.picker = UIDocumentPickerViewController(forOpeningContentTypes: allowedContentTypes)
+        let allowedContentTypes = config.documentPickerAllowedUTIs.compactMap { UTIString in
+            if let contentType = UTType(UTIString) {
+                return contentType
+            } else {
+                return nil
+            }
+        }
+        self.picker = UIDocumentPickerViewController(forOpeningContentTypes: allowedContentTypes.isEmpty ? [.item] : allowedContentTypes, asCopy: true)
         super.init(uploader: uploader,
                    viewController: viewController,
                    presentedViewController: picker,
